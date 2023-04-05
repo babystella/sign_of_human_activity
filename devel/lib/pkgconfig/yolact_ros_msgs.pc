@@ -1,0 +1,8 @@
+prefix=/home/Tianshu/score_ws/devel
+
+Name: yolact_ros_msgs
+Description: Description of yolact_ros_msgs
+Version: 0.1.0
+Cflags: -I/home/Tianshu/score_ws/devel/include -I/home/Tianshu/score_ws/src/yolact_ros_msgs/include
+Libs: -L${prefix}/lib 
+Requires: std_msgs message_runtime

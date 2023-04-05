@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /home/Tianshu/score_ws/build
 include yolact_ros_msgs/CMakeFiles/_yolact_ros_msgs_generate_messages_check_deps_Detections.dir/progress.make
 
 yolact_ros_msgs/CMakeFiles/_yolact_ros_msgs_generate_messages_check_deps_Detections:
-	cd /home/Tianshu/score_ws/build/yolact_ros_msgs && ../catkin_generated/env_cached.sh /home/Tianshu/anaconda3/envs/myenv/bin/python3.6 /opt/ros/melodic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py yolact_ros_msgs /home/Tianshu/score_ws/src/yolact_ros_msgs/msg/Detections.msg yolact_ros_msgs/Detection:std_msgs/Header
+	cd /home/Tianshu/score_ws/build/yolact_ros_msgs && ../catkin_generated/env_cached.sh /home/Tianshu/anaconda3/envs/myenv/bin/python3.6 /opt/ros/melodic/share/genmsg/cmake/../../../lib/genmsg/genmsg_check_deps.py yolact_ros_msgs /home/Tianshu/score_ws/src/yolact_ros_msgs/msg/Detections.msg std_msgs/Header:yolact_ros_msgs/Detection
 
 _yolact_ros_msgs_generate_messages_check_deps_Detections: yolact_ros_msgs/CMakeFiles/_yolact_ros_msgs_generate_messages_check_deps_Detections
 _yolact_ros_msgs_generate_messages_check_deps_Detections: yolact_ros_msgs/CMakeFiles/_yolact_ros_msgs_generate_messages_check_deps_Detections.dir/build.make

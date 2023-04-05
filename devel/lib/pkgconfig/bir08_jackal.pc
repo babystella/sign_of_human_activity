@@ -1,0 +1,8 @@
+prefix=/home/Tianshu/score_ws/devel
+
+Name: bir08_jackal
+Description: Description of bir08_jackal
+Version: 0.0.1
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

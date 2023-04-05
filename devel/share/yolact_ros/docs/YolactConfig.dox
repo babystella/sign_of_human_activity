@@ -1,0 +1,18 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~image_topic" : \b [str] Image topic used for subscribing min: , default: /camera/color/image_raw, max: 
+- \b "~use_compressed_image" : \b [bool] Subscribe to compressed image topic min: False, default: False, max: True
+- \b "~publish_visualization" : \b [bool] Publish images with detections min: False, default: True, max: True
+- \b "~publish_detections" : \b [bool] Publish detections as message min: False, default: True, max: True
+- \b "~display_visualization" : \b [bool] Display window with detection image min: False, default: False, max: True
+- \b "~display_masks" : \b [bool] Whether or not to display masks over bounding boxes min: False, default: True, max: True
+- \b "~display_bboxes" : \b [bool] Whether or not to display bboxes around masks min: False, default: True, max: True
+- \b "~display_text" : \b [bool] Whether or not to display text (class [score]) min: False, default: True, max: True
+- \b "~display_scores" : \b [bool] Whether or not to display scores in addition to classes min: False, default: True, max: True
+- \b "~display_fps" : \b [bool] When displaying video, draw the FPS on the frame min: False, default: True, max: True
+- \b "~score_threshold" : \b [double] Detections with a score under this threshold will not be considered min: 0.8, default: 0.8, max: 1.0
+- \b "~crop_masks" : \b [bool] If true, crop output masks with the predicted bounding box min: False, default: True, max: True
+- \b "~top_k" : \b [int] Further restrict the number of predictions to parse min: 0, default: 5, max: 100
+

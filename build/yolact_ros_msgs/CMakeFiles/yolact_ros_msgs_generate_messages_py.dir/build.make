@@ -77,8 +77,8 @@ yolact_ros_msgs/CMakeFiles/yolact_ros_msgs_generate_messages_py: /home/Tianshu/s
 
 /home/Tianshu/score_ws/devel/lib/python3/dist-packages/yolact_ros_msgs/msg/_Detections.py: /opt/ros/melodic/lib/genpy/genmsg_py.py
 /home/Tianshu/score_ws/devel/lib/python3/dist-packages/yolact_ros_msgs/msg/_Detections.py: /home/Tianshu/score_ws/src/yolact_ros_msgs/msg/Detections.msg
-/home/Tianshu/score_ws/devel/lib/python3/dist-packages/yolact_ros_msgs/msg/_Detections.py: /home/Tianshu/score_ws/src/yolact_ros_msgs/msg/Detection.msg
 /home/Tianshu/score_ws/devel/lib/python3/dist-packages/yolact_ros_msgs/msg/_Detections.py: /opt/ros/melodic/share/std_msgs/msg/Header.msg
+/home/Tianshu/score_ws/devel/lib/python3/dist-packages/yolact_ros_msgs/msg/_Detections.py: /home/Tianshu/score_ws/src/yolact_ros_msgs/msg/Detection.msg
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/Tianshu/score_ws/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Generating Python from MSG yolact_ros_msgs/Detections"
 	cd /home/Tianshu/score_ws/build/yolact_ros_msgs && ../catkin_generated/env_cached.sh /home/Tianshu/anaconda3/envs/myenv/bin/python3.6 /opt/ros/melodic/share/genpy/cmake/../../../lib/genpy/genmsg_py.py /home/Tianshu/score_ws/src/yolact_ros_msgs/msg/Detections.msg -Iyolact_ros_msgs:/home/Tianshu/score_ws/src/yolact_ros_msgs/msg -Istd_msgs:/opt/ros/melodic/share/std_msgs/cmake/../msg -p yolact_ros_msgs -o /home/Tianshu/score_ws/devel/lib/python3/dist-packages/yolact_ros_msgs/msg
 

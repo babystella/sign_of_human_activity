@@ -1,0 +1,19 @@
+\subsubsection usage Usage
+\verbatim
+<node name="yolact_ros" pkg="yolact_ros" type="yolact_ros">
+  <param name="image_topic" type="str" value="/camera/color/image_raw" />
+  <param name="use_compressed_image" type="bool" value="False" />
+  <param name="publish_visualization" type="bool" value="True" />
+  <param name="publish_detections" type="bool" value="True" />
+  <param name="display_visualization" type="bool" value="False" />
+  <param name="display_masks" type="bool" value="True" />
+  <param name="display_bboxes" type="bool" value="True" />
+  <param name="display_text" type="bool" value="True" />
+  <param name="display_scores" type="bool" value="True" />
+  <param name="display_fps" type="bool" value="True" />
+  <param name="score_threshold" type="double" value="0.8" />
+  <param name="crop_masks" type="bool" value="True" />
+  <param name="top_k" type="int" value="5" />
+</node>
+\endverbatim
+
