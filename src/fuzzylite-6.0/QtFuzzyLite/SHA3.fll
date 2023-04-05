@@ -1,0 +1,45 @@
+Engine: SHA
+description: Possibility
+InputVariable: Score
+  description: Possibility
+  enabled: true
+  range: 0.000 100.000
+  lock-range: true
+  term: Low Trapezoid 0.000 0.000 10.000 40.000
+  term: Medium Triangle 20.000 50.000 80.000
+  term: High Trapezoid 60.000 90.000 100.000 100.000
+InputVariable: Distancetoeachother
+  description: Distance
+  enabled: true
+  range: 0.000 10.000
+  lock-range: true
+  term: Close Gaussian 0.000 2.000
+  term: Medium Gaussian 5.000 1.500
+  term: Far Gaussian 10.000 2.000
+OutputVariable: Possibility
+  description: Possibility
+  enabled: true
+  range: 0.000 1.000
+  lock-range: false
+  aggregation: AlgebraicSum
+  defuzzifier: Bisector 100
+  default: 0.000
+  lock-previous: false
+  term: LP Triangle 0.000 0.200 0.400
+  term: MP Triangle 0.300 0.500 0.700
+  term: HP Triangle 0.600 0.800 1.000
+RuleBlock: 
+  enabled: true
+  conjunction: AlgebraicProduct
+  disjunction: AlgebraicSum
+  implication: AlgebraicProduct
+  activation: Highest 1
+  rule: if Score is Low and Distancetoeachother is Close then Possibility is MP
+  rule: if Score is Low and Distancetoeachother is Medium then Possibility is LP
+  rule: if Score is Low and Distancetoeachother is Far then Possibility is LP
+  rule: if Score is Medium and Distancetoeachother is Close then Possibility is MP
+  rule: if Score is Medium and Distancetoeachother is Medium then Possibility is MP
+  rule: if Score is Medium and Distancetoeachother is Far then Possibility is LP
+  rule: if Score is High and Distancetoeachother is Close then Possibility is HP
+  rule: if Score is High and Distancetoeachother is Medium then Possibility is HP
+  rule: if Score is High and Distancetoeachother is Far then Possibility is MP

@@ -1,0 +1,8 @@
+prefix=/home/Tianshu/score_ws/install
+
+Name: env_complexity
+Description: Description of env_complexity
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

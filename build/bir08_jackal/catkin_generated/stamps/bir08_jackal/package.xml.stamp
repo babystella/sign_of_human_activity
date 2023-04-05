@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>bir08_jackal</name>
+  <version>0.0.1</version>
+  <description>This is a customization repo for the BIR08 Jackal. The robot has an Ultra ITX PC with GTX 1650 GPU, Blackfly camera, Velodyne VLP-16 lidar, Autec wireless e-stop, Microhard radio, indoor tire sleeves, and base station.</description>
+  <maintainer email="zanderson@clearpathrobotics.com">Zac Anderson</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!--
+    Add dependencies here
+    At minimum you should include the _robot and _description packages for the base
+    platform.
+    e.g. husky_description and husky_robot
+  -->
+  <exec_depend>jackal_description</exec_depend>
+  <exec_depend>jackal_robot</exec_depend>
+  <exec_depend>image_transport_plugins</exec_depend>
+  <exec_depend>image_proc</exec_depend>
+  <exec_depend>image_pipeline</exec_depend>
+
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>

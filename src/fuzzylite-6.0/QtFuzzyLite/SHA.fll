@@ -1,0 +1,56 @@
+Engine: tipper
+description: (service and food) -> (tip)
+InputVariable: HighPossibility
+  description: High Possibility
+  enabled: true
+  range: 0.000 7.000
+  lock-range: true
+  term: HighPossibilityObject Gaussian 0.000 0.850
+  term: unnamed Rectangle 1.500 10.000 0.200
+InputVariable: LowPossibility
+  description: Low Possibility
+  enabled: true
+  range: 0.000 10.000
+  lock-range: true
+  term: LowPossibilityObject Gaussian 2.000 1.250
+  term: unnamed Rectangle 5.100 10.000 0.050
+InputVariable: MediumPossibility
+  description: Medium Possibility
+  enabled: true
+  range: 0.000 10.000
+  lock-range: false
+  term: MediumPossibilityObject Gaussian 1.000 2.250
+  term: unnamed Rectangle 5.800 10.000 0.100
+OutputVariable: SHAscore
+  description: Score
+  enabled: true
+  range: 0.010 10.000
+  lock-range: false
+  aggregation: Maximum
+  defuzzifier: Centroid 100
+  default: nan
+  lock-previous: false
+  term: LowPossibilityObject Bell 0.000 3.000 3.000
+  term: MediumPossibilityObject Bell 5.000 2.500 3.000
+  term: LowPossibilityObject Bell 10.000 2.500 3.000
+OutputVariable: tsTip
+  description: tip based on Takagi-Sugeno inference
+  enabled: true
+  range: 0.000 30.000
+  lock-range: false
+  aggregation: none
+  defuzzifier: WeightedAverage TakagiSugeno
+  default: nan
+  lock-previous: false
+  term: cheap Constant 5.000
+  term: average Constant 15.000
+  term: generous Constant 25.000
+RuleBlock: 
+  enabled: true
+  conjunction: AlgebraicProduct
+  disjunction: AlgebraicSum
+  implication: AlgebraicProduct
+  activation: Highest 1
+  rule: if HighPossibility is High Possibility Object and LowPossibility is Low Possibility Object and MediumPossibility is Medium Possibility Object then SHAscore is ? and tsTip is ?
+  rule: if HighPossibility is Medium Possibility Object and LowPossibility is Low Possibility Object and MediumPossibility is Medium Possibility Object then SHAscore is ? and tsTip is ?
+  rule: if HighPossibility is Low Possibility Object and LowPossibility is Low Possibility Object and MediumPossibility is Medium Possibility Object then SHAscore is ? and tsTip is ?

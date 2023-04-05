@@ -1,0 +1,8 @@
+prefix=/home/Tianshu/score_ws/install
+
+Name: sha_demo
+Description: Description of sha_demo
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: realsense2_camera yolact_ros sha

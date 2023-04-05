@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<launch>
+  
+
+  <!-- Include the realsense2_camera node launch file -->
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <!-- Set any arguments for the included launch file here -->
+    <!-- <arg name="serial_no" value="112422070291" /> -->
+    <arg name="align_depth" value="true" />
+  </include>
+
+
+  <!-- launching yolact -->
+  <node pkg="yolact_ros" type="yolact_ros" name="yolact_ros" output="screen">
+    <param name="image_topic" value="/camera/color/image_raw" />
+    <param name="use_compressed_image" value="False" />
+    <param name="publish_visualization" value="True" />
+    <param name="publish_detecitons" value="True" />
+    <param name="display_visualization" value="False" />
+  </node>
+  <!-- launching sha -->
+  <node pkg="sha" type="sha" name="sha" output="screen"/>
+
+  <!-- launching rviz -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find sha_demo)/yolact.rviz"/>
+
+
+</launch>
+
+

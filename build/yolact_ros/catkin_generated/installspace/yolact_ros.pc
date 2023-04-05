@@ -1,0 +1,8 @@
+prefix=/home/Tianshu/score_ws/install
+
+Name: yolact_ros
+Description: Description of yolact_ros
+Version: 0.1.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: sensor_msgs cv_bridge rospy std_msgs yolact_ros_msgs dynamic_reconfigure

@@ -1,0 +1,2 @@
+float64 old_framescore_pub
+float64 old_variance_pub
