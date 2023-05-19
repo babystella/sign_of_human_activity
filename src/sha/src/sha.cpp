@@ -1,11 +1,11 @@
 #include "ros/ros.h"
+#include <std_msgs/Header.h>
 #include "yolact_ros_msgs/Box.h"
 #include "yolact_ros_msgs/Detection.h"
 #include "yolact_ros_msgs/Detections.h"
 #include "yolact_ros_msgs/Mask.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Float32.h"
-#include "std_msgs/Int32.h"
 #include <sstream>
 #include <cmath>
 #include <string>
@@ -22,32 +22,46 @@
 #include <iostream>
 #include <fstream>
 #include <tuple>
-
+#include "sha/sha.h" 
 
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <cv_bridge/cv_bridge.h>
 
 
-// global variables
+
+
+
+
+// L1 objects = {"poison", "infectious-substance", "non-flammable-gas", "inhalation-hazard"};
+// L2 objects = {"corrosive", "dangerous", "flammable", "organic-peroxide"};
+// L3 objects = {"explosive", "radioactive", "flammable-solid", "spontaneously-combustible", "oxygen"};
+
+// some global variables
+float currentx = 0.0;
+float currenty = 0.0;
 float old_framescore = 0.0;
 float old_variance = 0.0;
 float framescore = 0.0;
 float total_variance = 0.0;
 float finalscore;
 
-//
+
 int lowscore_cnt = 0;
 int highscore_cnt = 0;
 int zero_cnt = 0;
+
 
 std::ofstream detectionwrite;
 std::ofstream experimentwrite;
 std::vector<std::string> objects = {"laptop","backpack",
 									"cap","mask","wallet",
 									"cell phone","glasses","key","watch"};
+
+
+
 // struct of fuzzy score calculation
-struct SHAparameter
+struct fuzzyscore
 {
     int SHAlevel;
 	float SHAResultScore;
@@ -57,9 +71,9 @@ struct SHAparameter
 
 
 
-// Give weight to different objects of class
 
-std::tuple<int,float> find_level_wight(const std::string& s1)
+// find weight for detected object
+std::tuple<int,float> find_level_weight(const std::string& s1)
 {
 	
 	std::tuple<int,float> level_weight;
@@ -86,7 +100,7 @@ std::tuple<int,float> find_level_wight(const std::string& s1)
 	{
 		level_weight = std::make_tuple(3, 0.82);
 		// Level = 3;
-		// weight = 1;
+		// weight = 1;yolact_ros_msgs
 	}
 	else
 	{
@@ -101,8 +115,10 @@ std::tuple<int,float> find_level_wight(const std::string& s1)
 
 void yolactcallback(const yolact_ros_msgs::Detections Detection)
 {
-	std::vector<SHAparameter> SHAscores;
+	std::vector<fuzzyscore> SHAscores;
+	// std::vector<fuzzyscore> dispersionScores;
 	float framescore = 0.0;
+	// float dispersionvalue = 0.0;
 	float variance[Detection.detections.size()];
 	float sumup = 0.0; 
 	float mean = 0.0;
@@ -112,8 +128,8 @@ void yolactcallback(const yolact_ros_msgs::Detections Detection)
 	float total_variance = 0;
     float norm_framescore = 0;
 	
-	// different occasions when number of detetections vary
-	if (Detection.detections.size() == 0)	
+
+	if (Detection.detections.size() == 0)
 	{
 		total_variance = 0;
 		old_framescore = 0;
@@ -121,21 +137,22 @@ void yolactcallback(const yolact_ros_msgs::Detections Detection)
 
 	else if (Detection.detections.size() == 1)
 	{
-		// SHAparameter currentdispersionscore;
-		SHAparameter currentSHAscore;
-		std::tuple<int, float> level_weight = find_level_wight(Detection.detections[0].class_name.c_str());
+		// fuzzyscore currentdispersionscore;
+		fuzzyscore currentSHAscore;
+		std::tuple<int, float> level_weight = find_level_weight(Detection.detections[0].class_name.c_str());
 		std::tie(level, weight) = level_weight;
 
 			
 
         
         currentSHAscore.SHAlevel = level;
-
-		currentSHAscore.SHAResultScore = currentSHAscore.SHAweight;
-		framescore = currentSHAscore.SHAweight;
+			// {
+				currentSHAscore.SHAResultScore = currentSHAscore.SHAweight;
+				framescore = currentSHAscore.SHAweight;
 		
-
+			// }
 		SHAscores.push_back(currentSHAscore);
+		// }
 		
 		
 		total_variance = 0;
@@ -146,13 +163,13 @@ void yolactcallback(const yolact_ros_msgs::Detections Detection)
 
 	else
 	{
-		SHAparameter currentSHAscore;
-		// SHAparameter currentdispersionscore;
+		fuzzyscore currentSHAscore;
+		// fuzzyscore currentdispersionscore;
 		for (int i =0; i<Detection.detections.size(); ++i)
    		{
 			distance =  Detection.detections[i].distance*0.001; //dispersion calculation
  			sumup += distance;
-			std::tuple<int, float> level_weight = find_level_wight(Detection.detections[i].class_name.c_str());
+			std::tuple<int, float> level_weight = find_level_weight(Detection.detections[i].class_name.c_str());
 			std::tie(level, weight) = level_weight;
 			currentSHAscore.SHAlevel = level;
 			currentSHAscore.SHAweight = weight;
@@ -161,13 +178,17 @@ void yolactcallback(const yolact_ros_msgs::Detections Detection)
 		// generate total variance
 		for (int i=0; i<Detection.detections.size(); i++)
 		{
-			variance[i] = abs(Detection.detections[i].distance*0.001 - mean);
-			total_variance = total_variance + variance[i];
+				variance[i] = abs(Detection.detections[i].distance*0.001 - mean);
+				total_variance = total_variance + variance[i];
 		
-			currentSHAscore.SHAlevel = level;
-			currentSHAscore.SHAweight = weight;
+				currentSHAscore.SHAlevel = level;
+				currentSHAscore.SHAweight = weight;
+        
+			// for (int i =0; i<Detection.detections.size(); ++i)
+			// {
+			// currentSHAscore.SHAResultScore += weight * variance[i];
         	framescore += currentSHAscore.SHAweight * (10-variance[i])/10;
-
+			// }
 			SHAscores.push_back(currentSHAscore);
 			
 		}
@@ -175,7 +196,7 @@ void yolactcallback(const yolact_ros_msgs::Detections Detection)
 
 	}	
 	
-	// score filter to remove unreliable score
+	
 	if (norm_framescore !=0)// have detections
 	{
 		old_framescore = norm_framescore;
@@ -199,12 +220,25 @@ void yolactcallback(const yolact_ros_msgs::Detections Detection)
 	experimentwrite << old_framescore << ","<< old_variance <<"," << Detection.detections.size() << '\n';
 	ROS_INFO("SHA score:%.5f", old_framescore);
 	ROS_INFO("dispersion value:%.5f", old_variance);
+
+	// std_msgs::Float32 shascore;
+    // shascore.data = old_framescore;
+
+
 }
+
+
 
 
 
 int main(int argc, char *argv[])
 {
+
+	///////////////////////////////////////////////////////
+	
+	// Open file X,Y,level, distance ...
+	// detectionwrite.open ("detection.csv");
+	// std::cout<< "write to detection.csv" << std::endl;
 	experimentwrite.open ("experiment.csv");
 	std::cout<< "write to experiment.csv" << std::endl;
 
@@ -213,32 +247,46 @@ int main(int argc, char *argv[])
 	ROS_INFO("Start SHA evaluation, waiting for detections result...");
 	ros::NodeHandle nh;
 
-	std_msgs::Float32 old_framescore_pub;
-	std_msgs::Float32 old_variance_pub;
-
-
 	// Only subscribe to detections messages, this can be used for testing.
-	ros::Subscriber sub = nh.subscribe<yolact_ros_msgs::Detections> ("/yolact_ros/detections", 1, yolactcallback);
-	ros::Publisher sha_pub = nh.advertise<std_msgs::Float32> ("/shascore",10);
+	ros::Subscriber sub = nh.subscribe<yolact_ros_msgs::Detections>("/yolact_ros/detections", 1, yolactcallback);
 	
 	
+	ros::Publisher sha_pub = nh.advertise<sha::sha>("/SHA/score/",1);
+
 
 
 	// Score GUI
 	image_transport::ImageTransport imgt(nh);
-	image_transport::Publisher scoreImgpub = imgt.advertise("/sha/score",1);
+	image_transport::Publisher scoreImgpub = imgt.advertise("SHA/score_image",1);
 	
 	// Create Approximated synchronized subscribers subscribes to position and detections topic
-  	message_filters::Subscriber<geometry_msgs::PoseWithCovarianceStamped> pose_sub( nh, "/amcl_pose", 1);
-	message_filters::Subscriber<yolact_ros_msgs::Detections> detection_sub( nh, "/yolact_ros/detections", 1);
+  	// message_filters::Subscriber<geometry_msgs::PoseWithCovarianceStamped> pose_sub( nh, "/amcl_pose", 1);
+	// message_filters::Subscriber<yolact_ros_msgs::Detections> detection_sub( nh, "/yolact_ros/detections", 1);
 
-	typedef message_filters::sync_policies::ApproximateTime<yolact_ros_msgs::Detections, geometry_msgs::PoseWithCovarianceStamped> MySyncPolicy;
-  	message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), detection_sub, pose_sub);	
+	// typedef message_filters::sync_policies::ApproximateTime<yolact_ros_msgs::Detections, geometry_msgs::PoseWithCovarianceStamped> MySyncPolicy;
+  	// message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), detection_sub, pose_sub);	
+	// sync.registerCallback(&processcallback);
 
+	//cv::Mat image(100, 300, CV_8UC3, cv::Scalar(0));
+	// Start wating for the publisher
+	
+	ros::Rate loop_rate(1);
+	
 	while(ros::ok())
 	{
 		ros::spinOnce(); 
-		// set the threshod for warning
+		
+		sha::sha shascore;
+		// std_msgs::Float32 shascore;
+    	shascore.SHAScore = old_framescore;
+		
+		// set the message timestamp
+		shascore.header.stamp = ros::Time::now();
+    	
+		// Publish the message
+    	sha_pub.publish(shascore);
+			
+			
 		if (old_framescore > 0.9)
 		{
 			highscore_cnt ++;
@@ -247,12 +295,10 @@ int main(int argc, char *argv[])
 			{	
 				lowscore_cnt = 0;
 	
-				std::string victimwarning = "Victim warning! SHA score:" + std::to_string(float(old_framescore)) + " Dispersion value: " + std::to_string(float(old_variance)) ;
-				old_framescore_pub.data = old_framescore;
-				old_variance_pub.data = old_variance;
+				std::string shawarning = "Victim warning! SHA score:" + std::to_string(float(old_framescore)) + " Dispersion value: " + std::to_string(float(old_variance)) ;
 				cv::Mat image(400, 1000, CV_8UC3, cv::Scalar(0));
 				cv::putText(image, //target image
-            	victimwarning, //text
+            	shawarning, //text
             	cv::Point(10, image.rows / 2), //MIDDLE position
             	cv::FONT_HERSHEY_DUPLEX,
             	1.0, //size
@@ -260,10 +306,10 @@ int main(int argc, char *argv[])
             	1 //thick ness
             	);
 				
+				
 				sensor_msgs::ImagePtr scoreImgmsg=cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg();
 				scoreImgpub.publish(scoreImgmsg);
-				sha_pub.publish(old_framescore_pub);	//SHA score publication
-				// sha_pub.publish(old_variance_pub);	//dispersion publication
+				
 			}
 		}
 			
@@ -278,8 +324,6 @@ int main(int argc, char *argv[])
 				highscore_cnt = 0;
 				
 				std::string scoreString = "SHA score: " + std::to_string(float(old_framescore)) + " Dispersion value: " + std::to_string(float(old_variance));
-				old_framescore_pub.data = old_framescore;
-				old_variance_pub.data = old_variance;
     			cv::Mat image(400, 1000, CV_8UC3, cv::Scalar(0));
 				cv::putText(image, //target image
         		scoreString, //textold_framescore
@@ -292,19 +336,20 @@ int main(int argc, char *argv[])
 				sensor_msgs::ImagePtr scoreImgmsg=cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg();
 		
 				scoreImgpub.publish(scoreImgmsg);
-				sha_pub.publish(old_framescore_pub);	//SHA score publication
-				// sha_pub.publish(old_variance_pub); 	//dispersion publication
 			}
 		}
 			
 
-		
+		loop_rate.sleep();
 
 	}
 
-	
+	// End of the program
+	// detectionwrite.close();
+	// std::cout<< "detection.csv finish" << std::endl;
 	experimentwrite.close();
 	std::cout<< "experimentwrite.csv finish" << std::endl;
+
 	std::cout<< "SHA evaluation end" << std::endl;
 	return 0;
 
