@@ -11,9 +11,6 @@
 #include <string>
 #include <vector> 
 #include <algorithm>
-#include "geometry_msgs/PoseWithCovarianceStamped.h"
-#include "geometry_msgs/Twist.h"
-#include "fl/Headers.h"
 #include <message_filters/time_synchronizer.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
@@ -85,20 +82,20 @@ std::tuple<int,float> find_level_weight(const std::string& s1)
 	// ROS_INFO("idx == %d", idx);
 	if (idx<=1)
 	{
-		level_weight = std::make_tuple(1, 0.16);
+		level_weight = std::make_tuple(1, 0.33);
 		
 		// Level = 1;
 		// weight = 0.33;
 	}
 	else if (1<idx && idx<=4)
 	{
-		level_weight = std::make_tuple(2, 0.49);
+		level_weight = std::make_tuple(2, 0.66);
 		// Level = 2;
 		// weight = 0.66;
 	}
 	else if (4<idx && idx<=8)
 	{
-		level_weight = std::make_tuple(3, 0.82);
+		level_weight = std::make_tuple(3, 0.99);
 		// Level = 3;
 		// weight = 1;yolact_ros_msgs
 	}
@@ -127,6 +124,8 @@ void yolactcallback(const yolact_ros_msgs::Detections Detection)
 	int level = 0;
 	float total_variance = 0;
     float norm_framescore = 0;
+	double a = 6;
+	double b = -7;
 	
 
 	if (Detection.detections.size() == 0)
@@ -157,7 +156,7 @@ void yolactcallback(const yolact_ros_msgs::Detections Detection)
 		
 		total_variance = 0;
 	
-		norm_framescore = 1/(1+exp((-10)*(framescore-0.5)));
+		norm_framescore = 1/(1 + exp(-(a*framescore + b)));
 		// dispersionvalue = 0;
 	}		
 
@@ -192,7 +191,8 @@ void yolactcallback(const yolact_ros_msgs::Detections Detection)
 			SHAscores.push_back(currentSHAscore);
 			
 		}
-		norm_framescore = 1/(1+exp((-10)*(framescore-0.5)));
+		
+		norm_framescore = 1/(1 + exp(-(a*framescore + b)));
 
 	}	
 	
@@ -259,17 +259,10 @@ int main(int argc, char *argv[])
 	image_transport::ImageTransport imgt(nh);
 	image_transport::Publisher scoreImgpub = imgt.advertise("SHA/score_image",1);
 	
-	// Create Approximated synchronized subscribers subscribes to position and detections topic
-  	// message_filters::Subscriber<geometry_msgs::PoseWithCovarianceStamped> pose_sub( nh, "/amcl_pose", 1);
-	// message_filters::Subscriber<yolact_ros_msgs::Detections> detection_sub( nh, "/yolact_ros/detections", 1);
-
-	// typedef message_filters::sync_policies::ApproximateTime<yolact_ros_msgs::Detections, geometry_msgs::PoseWithCovarianceStamped> MySyncPolicy;
-  	// message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), detection_sub, pose_sub);	
-	// sync.registerCallback(&processcallback);
-
-	//cv::Mat image(100, 300, CV_8UC3, cv::Scalar(0));
 	// Start wating for the publisher
 	
+
+	// 1 hz update
 	ros::Rate loop_rate(1);
 	
 	while(ros::ok())
@@ -339,7 +332,7 @@ int main(int argc, char *argv[])
 			}
 		}
 			
-
+		// 1 hz update
 		loop_rate.sleep();
 
 	}
